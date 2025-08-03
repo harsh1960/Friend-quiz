@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friendship Quiz</title>
+    <style>
+        /* --- Global Styles --- */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --white-color: #ffffff;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            background-color: var(--white-color);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.4em;
+            margin-bottom: 25px;
+        }
+
+        /* --- Input & Buttons --- */
+        .input-field {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            font-size: 1em;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-share {
+            background-color: var(--secondary-color);
+        }
+        .btn-share:hover {
+            background-color: #27ae60;
+        }
+        
+        /* --- Quiz Section --- */
+        .question-block {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .question-block p {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .option.selected {
+            background-color: #a9cce3;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .option input[type="radio"] {
+            display: none; /* Hide the radio button */
+        }
+
+        /* --- Results Section --- */
+        #share-link-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9f9;
+            border-radius: 8px;
+            word-wrap: break-word;
+        }
+        
+        #share-link {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        #results-container ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+        
+        #results-container li {
+            background-color: #f8f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 5px solid;
+        }
+
+        .correct {
+            border-left-color: var(--secondary-color) !important;
+        }
+        
+        .wrong {
+            border-left-color: var(--danger-color) !important;
+        }
+        
+        .correct::after {
+            content: "✔ Correct!";
+            color: var(--secondary-color);
+            font-weight: bold;
+            float: right;
+        }
+        
+        .wrong::after {
+            content: "✖ Wrong";
+            color: var(--danger-color);
+            font-weight: bold;
+            float: right;
+        }
+
+        /* --- Helper Classes --- */
+        .hidden {
+            display: none;
+        }
+
+        #error-message {
+            color: var(--danger-color);
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="name-page">
+            <h1>Friendship Quiz Challenge</h1>
+            <p>Enter your name to create your own quiz and challenge your friends!</p>
+            <input type="text" id="name-input" class="input-field" placeholder="Enter Your Name">
+            <button id="start-btn" class="btn">Create My Quiz</button>
+        </div>
+
+        <div id="creator-quiz-page" class="hidden">
+            <h2 id="creator-heading"></h2>
+            <div id="creator-questions-container"></div>
+            <button id="generate-link-btn" class="btn">Generate Friend Link</button>
+            <p id="creator-error" class="hidden" style="color:red; margin-top:10px;">Please answer all questions!</p>
+        </div>
+        
+        <div id="share-page" class="hidden">
+             <h2 id="share-heading">Your Quiz is Ready!</h2>
+             <p>Share this link with your friends and see if they know you well.</p>
+             <div id="share-link-container">
+                 <p>Your unique link:</p>
+                 <span id="share-link"></span>
+             </div>
+             <a id="whatsapp-share-btn" class="btn btn-share" href="#" target="_blank">
+                🚀 Share on WhatsApp
+             </a>
+        </div>
+
+        <div id="friend-quiz-page" class="hidden">
+            <h2 id="friend-heading"></h2>
+            <div id="friend-questions-container"></div>
+            <button id="submit-answers-btn" class="btn">Submit My Answers</button>
+             <p id="friend-error" class="hidden" style="color:red; margin-top:10px;">Please answer all questions!</p>
+        </div>
+
+        <div id="results-page" class="hidden">
+            <h2 id="results-heading"></h2>
+            <p id="score"></p>
+            <div id="results-container"></div>
+            <hr style="margin: 25px 0; border: 1px solid #eee;">
+            <h3>Now it's your turn!</h3>
+            <p>Click the button below to create your own quiz and challenge your friends.</p>
+            <button class="btn" onclick="window.location.href=window.location.pathname">Create Your Own Quiz!</button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const namePage = document.getElementById('name-page');
+            const creatorQuizPage = document.getElementById('creator-quiz-page');
+            const sharePage = document.getElementById('share-page');
+            const friendQuizPage = document.getElementById('friend-quiz-page');
+            const resultsPage = document.getElementById('results-page');
+
+            const nameInput = document.getElementById('name-input');
+            const startBtn = document.getElementById('start-btn');
+            const generateLinkBtn = document.getElementById('generate-link-btn');
+            const submitAnswersBtn = document.getElementById('submit-answers-btn');
+
+            // --- Quiz Data ---
+            const questions = [
+                {
+                    q: (name) => `What is ${name}'s favorite color?`,
+                    options: ['Red', 'Blue', 'White', 'Black']
+                },
+                {
+                    q: (name) => `What is ${name}'s favorite season?`,
+                    options: ['Summer', 'Winter', 'Monsoon', 'Spring']
+                },
+                {
+                    q: (name) => `What is ${name}'s favorite snack?`,
+                    options: ['Cake', 'Samosa', 'Golgappe', 'Pakode']
+                },
+                {
+                    q: (name) => `What is ${name}'s hobby?`,
+                    options: ['Cricket', 'Using Mobile', 'Reading Books', 'Online Games']
+                }
+            ];
+            
+            let creatorName = '';
+            let correctAnswers = '';
+
+            // --- Page Load Logic ---
+            const params = new URLSearchParams(window.location.search);
+            const friendModeName = params.get('name');
+            const answersFromUrl = params.get('a');
+
+            if (friendModeName && answersFromUrl) {
+                // Friend Mode
+                setupFriendQuiz(friendModeName, answersFromUrl);
+            } else {
+                // Creator Mode
+                namePage.classList.remove('hidden');
+            }
+            
+            // --- Event Listeners ---
+            startBtn.addEventListener('click', () => {
+                creatorName = nameInput.value.trim();
+                if (creatorName) {
+                    namePage.classList.add('hidden');
+                    setupCreatorQuiz(creatorName);
+                    creatorQuizPage.classList.remove('hidden');
+                } else {
+                    alert('Please enter your name!');
+                }
+            });
+
+            generateLinkBtn.addEventListener('click', generateShareLink);
+            submitAnswersBtn.addEventListener('click', submitFriendAnswers);
+
+            // --- Functions ---
+            function createQuestionHTML(questionData, name, containerId, isCreator) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                questionData.forEach((q, index) => {
+                    const block = document.createElement('div');
+                    block.className = 'question-block';
+                    
+                    const questionText = q.q(isCreator ? 'your' : name);
+                    block.innerHTML = `<p>${index + 1}. ${questionText}</p>`;
+                    
+                    const optionsContainer = document.createElement('div');
+                    optionsContainer.className = 'options-container';
+                    
+                    q.options.forEach((opt, optIndex) => {
+                        const label = document.createElement('label');
+                        label.className = 'option';
+                        label.innerHTML = `
+                            <input type="radio" name="q${index}" value="${optIndex}">
+                            ${opt}
+                        `;
+                        // Add click listener to label for better UX
+                        label.addEventListener('click', (e) => {
+                            // Deselect siblings
+                            const parent = e.currentTarget.parentElement;
+                            parent.querySelectorAll('.option').forEach(l => l.classList.remove('selected'));
+                            // Select clicked label
+                            e.currentTarget.classList.add('selected');
+                        });
+                        optionsContainer.appendChild(label);
+                    });
+                    
+                    block.appendChild(optionsContainer);
+                    container.appendChild(block);
+                });
+            }
+
+            function setupCreatorQuiz(name) {
+                document.getElementById('creator-heading').innerText = `Hello ${name}, answer these questions:`;
+                createQuestionHTML(questions, name, 'creator-questions-container', true);
+            }
+
+            function generateShareLink() {
+                const answerInputs = document.querySelectorAll('#creator-questions-container input[type="radio"]:checked');
+                document.getElementById('creator-error').classList.add('hidden');
+
+                if (answerInputs.length < questions.length) {
+                    document.getElementById('creator-error').classList.remove('hidden');
+                    return;
+                }
+                
+                document.getElementById('share-heading').innerText = `${creatorName}, Your Quiz is Ready!`;
+
+                const creatorAnswers = Array.from(answerInputs).map(input => input.value).join('');
+                const encodedName = encodeURIComponent(creatorName);
+                const link = `${window.location.origin}${window.location.pathname}?name=${encodedName}&a=${creatorAnswers}`;
+
+                document.getElementById('share-link').innerText = link;
+
+                // THIS IS THE MODIFIED WHATSAPP MESSAGE
+                const whatsappMsg = encodeURIComponent(`${creatorName} has challenged you to a friendship quiz! 🤔 See if you really know them. Click the link to find out: ${link}`);
+                
+                document.getElementById('whatsapp-share-btn').href = `https://api.whatsapp.com/send?text=${whatsappMsg}`;
+
+                creatorQuizPage.classList.add('hidden');
+                sharePage.classList.remove('hidden');
+            }
+            
+            function setupFriendQuiz(name, answers) {
+                correctAnswers = answers; // Store correct answers
+                namePage.classList.add('hidden');
+                creatorQuizPage.classList.add('hidden');
+
+                document.getElementById('friend-heading').innerText = `Guess ${name}'s Answers!`;
+                createQuestionHTML(questions, name, 'friend-questions-container', false);
+                friendQuizPage.classList.remove('hidden');
+            }
+
+            function submitFriendAnswers() {
+                const friendAnswerInputs = document.querySelectorAll('#friend-questions-container input[type="radio"]:checked');
+                document.getElementById('friend-error').classList.add('hidden');
+
+                if (friendAnswerInputs.length < questions.length) {
+                    document.getElementById('friend-error').classList.remove('hidden');
+                    return;
+                }
+                
+                let score = 0;
+                const resultsContainer = document.getElementById('results-container');
+                resultsContainer.innerHTML = '';
+
+                const friendName = new URLSearchParams(window.location.search).get('name');
+
+                friendAnswerInputs.forEach((input, index) => {
+                    const friendAnswerIndex = parseInt(input.value);
+                    const correctAnswerIndex = parseInt(correctAnswers[index]);
+                    const questionObj = questions[index];
+                    const li = document.createElement('li');
+
+                    const yourAnswer = `Your guess: <b>${questionObj.options[friendAnswerIndex]}</b>`;
+                    const correctAnswerText = `Correct answer: <b>${questionObj.options[correctAnswerIndex]}</b>`;
+
+                    if (friendAnswerIndex === correctAnswerIndex) {
+                        score++;
+                        li.className = 'correct';
+                        li.innerHTML = `<p>${questionObj.q(friendName)}</p><p>${yourAnswer}</p>`;
+                    } else {
+                        li.className = 'wrong';
+                        li.innerHTML = `<p>${questionObj.q(friendName)}</p><p>${yourAnswer}<br>${correctAnswerText}</p>`;
+                    }
+                    resultsContainer.appendChild(li);
+                });
+
+                document.getElementById('results-heading').innerText = `Here's how you did!`;
+                document.getElementById('score').innerHTML = `You scored <b>${score} out of ${questions.length}</b>.`;
+
+                friendQuizPage.classList.add('hidden');
+                resultsPage.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
