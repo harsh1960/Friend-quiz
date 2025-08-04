@@ -9,10 +9,11 @@
         :root {
             --primary-color: #3498db;
             --secondary-color: #2ecc71;
-            --light-bg: #ecf0f1;
+            --light-bg: #f0f4f8;
             --dark-text: #2c3e50;
             --white-color: #ffffff;
             --danger-color: #e74c3c;
+            --border-color: #dfe6e9;
         }
 
         body {
@@ -33,7 +34,7 @@
             background-color: var(--white-color);
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px M15px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 500px;
             text-align: center;
@@ -44,31 +45,20 @@
             color: var(--primary-color);
         }
         
-        h1 {
-            font-size: 1.8em;
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            font-size: 1.4em;
-            margin-bottom: 25px;
-        }
+        h1 { font-size: 1.8em; margin-bottom: 20px; }
+        h2 { font-size: 1.4em; margin-bottom: 25px; }
 
         /* --- Input & Buttons --- */
         .input-field {
             width: calc(100% - 20px);
             padding: 12px 10px;
             font-size: 1em;
-            border: 2px solid #bdc3c7;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             margin-bottom: 20px;
             transition: border-color 0.3s;
         }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+        .input-field:focus { outline: none; border-color: var(--primary-color); }
 
         .btn {
             background-color: var(--primary-color);
@@ -83,27 +73,330 @@
             transition: background-color 0.3s;
             margin-top: 10px;
         }
+        .btn:hover { background-color: #2980b9; }
 
-        .btn:hover {
-            background-color: #2980b9;
-        }
-
-        .btn-share {
-            background-color: var(--secondary-color);
-        }
-        .btn-share:hover {
-            background-color: #27ae60;
-        }
+        .btn-share { background-color: var(--secondary-color); }
+        .btn-share:hover { background-color: #27ae60; }
         
-        /* --- Quiz Section --- */
-        .question-block {
-            margin-bottom: 25px;
-            text-align: left;
-        }
+        /* --- Quiz Page Styles --- */
+        #quiz-page { text-align: left; }
         
-        .question-block p {
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            height: 10px;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            transition: width 0.4s ease-in-out;
+        }
+        #progress-text {
+            text-align: center;
+            margin-top: 5px;
             font-weight: bold;
-            font-size: 1.1em;
+            color: var(--primary-color);
+        }
+
+        #question-container p {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-card {
+            background-color: var(--white-color);
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .option-card.selected {
+            border-color: var(--primary-color);
+            background-color: #eaf5fc;
+        }
+        .option-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+        .option-card span {
+            display: block;
+            padding: 15px 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* --- Results & Share Pages --- */
+        #share-link-container {
+            margin-top: 20px; padding: 15px;
+            background-color: #f8f9f9; border-radius: 8px;
+            word-wrap: break-word; font-family: 'Courier New', Courier, monospace;
+            color: var(--primary-color); font-weight: bold;
+        }
+        
+        #results-container ul { list-style-type: none; padding: 0; text-align: left; }
+        #results-container li {
+            background-color: #f8f9f9; padding: 15px; margin-bottom: 10px;
+            border-radius: 8px; border-left: 5px solid;
+        }
+        .correct { border-left-color: var(--secondary-color) !important; }
+        .wrong { border-left-color: var(--danger-color) !important; }
+
+        /* --- Helper Classes --- */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="name-page">
+            <h1>Friendship Quiz Challenge</h1>
+            <p>Enter your name to create your own quiz and challenge your friends!</p>
+            <input type="text" id="name-input" class="input-field" placeholder="Enter Your Name">
+            <button id="start-btn" class="btn">Create My Quiz</button>
+        </div>
+
+        <div id="quiz-page" class="hidden">
+            <div class="progress-container">
+                <div id="progress-text"></div>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner"></div>
+                </div>
+            </div>
+            <div id="question-container">
+                </div>
+        </div>
+        
+        <div id="share-page" class="hidden">
+             <h2 id="share-heading">Your Quiz is Ready!</h2>
+             <p>Share this link with your friends and see if they know you well.</p>
+             <div id="share-link-container"></div>
+             <a id="whatsapp-share-btn" class="btn btn-share" href="#" target="_blank">
+                🚀 Share on WhatsApp
+             </a>
+        </div>
+
+        <div id="results-page" class="hidden">
+            <h2 id="results-heading"></h2>
+            <p id="score"></p>
+            <div id="results-container"></div>
+            <hr style="margin: 25px 0; border: 1px solid #eee;">
+            <p>Click the button below to create your own quiz and challenge your friends.</p>
+            <button class="btn" onclick="window.location.href=window.location.pathname">Create Your Own Quiz!</button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const namePage = document.getElementById('name-page');
+            const quizPage = document.getElementById('quiz-page');
+            const sharePage = document.getElementById('share-page');
+            const resultsPage = document.getElementById('results-page');
+            const nameInput = document.getElementById('name-input');
+            const startBtn = document.getElementById('start-btn');
+
+            // --- Quiz Data with Image URLs ---
+            // **IMPORTANT**: Replace these placeholder URLs with your actual image links.
+            const questions = [
+                {
+                    q: (name) => `What is ${name} favorite color?`,
+                    options: [
+                        { text: 'Red', image: 'https://placehold.co/150x150/e74c3c/white?text=Red' },
+                        { text: 'Blue', image: 'https://placehold.co/150x150/3498db/white?text=Blue' },
+                        { text: 'White', image: 'https://placehold.co/150x150/ecf0f1/black?text=White' },
+                        { text: 'Black', image: 'https://placehold.co/150x150/2c3e50/white?text=Black' }
+                    ]
+                },
+                {
+                    q: (name) => `What is ${name} favorite season?`,
+                    options: [
+                        { text: 'Summer', image: 'https://i.postimg.cc/7LQKd437/images.jpg' },
+                        { text: 'Winter', image: 'https://i.postimg.cc/gj34x6fq/images-1.jpg' },
+                        { text: 'Monsoon', image: 'https://i.postimg.cc/Qt9frzmz/images-2.jpg' },
+                        { text: 'Spring', image: 'https://i.postimg.cc/1RFvCLfn/images-3.jpg' }
+                    ]
+                },
+                {
+                    q: (name) => `What is ${name} favorite snack?`,
+                    options: [
+                        { text: 'Cake', image: 'https://i.postimg.cc/6qFz3fjQ/images-5.jpg' },
+                        { text: 'Samosa', image: 'https://i.postimg.cc/GpjMQY2M/images-4.jpg' },
+                        { text: 'Golgappe', image: 'https://i.postimg.cc/440WBXfT/images-6.jpg' },
+                        { text: 'Pakode', image: 'https://i.postimg.cc/6qFz3fjQ/images-5.jpg' }
+                    ]
+                },
+                {
+                    q: (name) => `What is ${name} Hobby?`,
+                    options: [
+                        { text: 'Cricket', image: 'https://i.postimg.cc/YqkvcWqN/images-10.jpg' },
+                        { text: 'Mobile', image: 'https://i.postimg.cc/vZZDTwnc/images-11.jpg' },
+                        { text: 'Reading', image: 'https://i.postimg.cc/T1jhLRQW/images-8.jpg' },
+                        { text: 'Gaming', image: 'https://i.postimg.cc/xTRc91cw/images-9.jpg' }
+                    ]
+                }
+            ];
+            
+            // --- State Variables ---
+            let currentQuestionIndex = 0;
+            let userAnswers = [];
+            let quizMode = 'creator'; // or 'friend'
+            let userName = '';
+            let friendCorrectAnswers = '';
+
+            // --- Page Load Logic ---
+            const params = new URLSearchParams(window.location.search);
+            const nameFromUrl = params.get('name');
+            const answersFromUrl = params.get('a');
+
+            if (nameFromUrl && answersFromUrl) {
+                // Friend Mode
+                quizMode = 'friend';
+                userName = nameFromUrl;
+                friendCorrectAnswers = answersFromUrl;
+                namePage.classList.add('hidden');
+                startQuiz();
+            }
+
+            // --- Event Listeners ---
+            startBtn.addEventListener('click', () => {
+                userName = nameInput.value.trim();
+                if (userName) {
+                    quizMode = 'creator';
+                    namePage.classList.add('hidden');
+                    startQuiz();
+                } else {
+                    alert('Please enter your name!');
+                }
+            });
+
+            function startQuiz() {
+                currentQuestionIndex = 0;
+                userAnswers = [];
+                quizPage.classList.remove('hidden');
+                displayCurrentQuestion();
+            }
+
+            function displayCurrentQuestion() {
+                if (currentQuestionIndex >= questions.length) {
+                    finishQuiz();
+                    return;
+                }
+
+                // Update progress bar
+                const progress = ((currentQuestionIndex) / questions.length) * 100;
+                document.querySelector('.progress-bar-inner').style.width = `${progress}%`;
+                document.getElementById('progress-text').innerText = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+
+                const questionData = questions[currentQuestionIndex];
+                const questionContainer = document.getElementById('question-container');
+                
+                let questionText = quizMode === 'creator' ? questionData.q('your') : questionData.q(userName);
+
+                let optionsHTML = '<div class="options-grid">';
+                questionData.options.forEach((opt, index) => {
+                    optionsHTML += `
+                        <div class="option-card" data-index="${index}">
+                            <img src="${opt.image}" alt="${opt.text}">
+                            <span>${opt.text}</span>
+                        </div>
+                    `;
+                });
+                optionsHTML += '</div>';
+
+                questionContainer.innerHTML = `<p>${questionText}</p>${optionsHTML}`;
+
+                // Add event listeners to new options
+                document.querySelectorAll('.option-card').forEach(card => {
+                    card.addEventListener('click', handleOptionSelect);
+                });
+            }
+
+            function handleOptionSelect(event) {
+                const selectedIndex = event.currentTarget.dataset.index;
+                userAnswers.push(selectedIndex);
+                currentQuestionIndex++;
+                
+                // Optional: add a small delay for a smoother transition
+                setTimeout(displayCurrentQuestion, 200);
+            }
+
+            function finishQuiz() {
+                quizPage.classList.add('hidden');
+                if (quizMode === 'creator') {
+                    finishCreatorQuiz();
+                } else {
+                    finishFriendQuiz();
+                }
+            }
+            
+            function finishCreatorQuiz() {
+                document.getElementById('share-heading').innerText = `${userName}, Your Quiz is Ready!`;
+                
+                const answersString = userAnswers.join('');
+                const encodedName = encodeURIComponent(userName);
+                const link = `${window.location.origin}${window.location.pathname}?name=${encodedName}&a=${answersString}`;
+
+                document.getElementById('share-link-container').innerText = link;
+                const whatsappMsg = encodeURIComponent(`${userName} has challenged you to a friendship quiz! 🤔 See if you really know them. Click the link to find out: ${link}`);
+                document.getElementById('whatsapp-share-btn').href = `https://api.whatsapp.com/send?text=${whatsappMsg}`;
+
+                sharePage.classList.remove('hidden');
+            }
+
+            function finishFriendQuiz() {
+                let score = 0;
+                const resultsContainer = document.getElementById('results-container');
+                let resultsHTML = '<ul>';
+
+                questions.forEach((q, index) => {
+                    const friendAnswerIdx = parseInt(userAnswers[index]);
+                    const correctAnswerIdx = parseInt(friendCorrectAnswers[index]);
+                    const questionText = q.q(userName);
+                    const friendAnswerText = q.options[friendAnswerIdx].text;
+                    const correctAnswerText = q.options[correctAnswerIdx].text;
+                    
+                    if (friendAnswerIdx === correctAnswerIdx) {
+                        score++;
+                        resultsHTML += `<li class="correct"><p>${questionText}</p><p>You guessed: <b>${friendAnswerText}</b> ✔</p></li>`;
+                    } else {
+                        resultsHTML += `<li class="wrong"><p>${questionText}</p><p>You guessed: <b>${friendAnswerText}</b> ✖</p><p>Correct answer: <b>${correctAnswerText}</b></p></li>`;
+                    }
+                });
+                resultsHTML += '</ul>';
+                
+                resultsContainer.innerHTML = resultsHTML;
+                document.getElementById('results-heading').innerText = `Here's how you did!`;
+                document.getElementById('score').innerHTML = `You scored <b>${score} out of ${questions.length}</b>.`;
+                resultsPage.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
             margin-bottom: 15px;
         }
 
